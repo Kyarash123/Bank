@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>کارت اعتباری</title>
+    <style>
+        /* تنظیمات پایه */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #0b0d14;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            direction: rtl;
+            padding: 20px;
+        }
+
+        /* کانتینر اصلی */
+        .container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
+        /* شکل محو صورتی در پس‌زمینه */
+        .bg-shape {
+            position: absolute;
+            width: 260px;
+            height: 450px;
+            background: linear-gradient(180deg, #f9a8b9 0%, #f05a78 100%);
+            border-radius: 60px;
+            filter: blur(40px);
+            opacity: 0.7;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        /* استایل کارت */
+        .card {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 400px;
+            background: rgba(15, 20, 30, 0.55);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 30px 25px 25px 25px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        /* بخش بالای کارت */
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .bank-name {
+            color: rgba(255, 255, 255, 0.8);
+            font-weight: 600;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        /* طراحی تراشه (Chip) */
+        .chip {
+            width: 45px;
+            height: 32px;
+            background: linear-gradient(135deg, #f4d58d, #d4af37, #e5c07b);
+            border-radius: 5px;
+            position: relative;
+            border: 1px solid #b8962e;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: inset 0 0 5px rgba(255, 255, 255, 0.3);
+        }
+
+        .chip::before {
+            content: '';
+            position: absolute;
+            width: 65%;
+            height: 1.5px;
+            background: #b8962e;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 -7px 0 #b8962e, 0 7px 0 #b8962e;
+        }
+
+        .chip::after {
+            content: '';
+            position: absolute;
+            width: 1.5px;
+            height: 65%;
+            background: #b8962e;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* اطلاعات کارت */
+        .card-body {
+            margin-bottom: 30px;
+        }
+
+        .info-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* همه چیز را در مرکز افقی قرار می‌دهیم */
+            margin-bottom: 25px;
+        }
+
+        .info-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .label {
+            display: block;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.75rem;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .value {
+            display: inline-block;
+            color: #ffffff;
+            font-weight: 600;
+            letter-spacing: 1px;
+            padding: 4px 0;
+            transition: all 0.2s ease;
+            direction: ltr; /* جهت اعداد به صورت چپ‌چین */
+            text-align: center;
+            width: 100%;
+        }
+
+        /* ---------- تنظیم اختصاصی سایز فونت ها ---------- */
+        #card-number {
+            font-size: 1.8rem; /* شماره کارت بزرگ */
+            letter-spacing: 2px;
+        }
+
+        #iban {
+            font-size: 1.2rem; /* شماره شبا کوچک‌تر شد */
+            letter-spacing: 1.5px;
+        }
+        /* ---------------------------------------------------- */
+
+        /* استایل کلیک‌پذیر */
+        .clickable {
+            cursor: pointer;
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin: -4px -8px;
+        }
+
+        .clickable:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #fcaebd;
+        }
+
+        .clickable:active {
+            transform: scale(0.98);
+        }
+
+        /* بخش پایین کارت */
+        .card-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        /* اعلان (Toast) */
+        #toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(80px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            color: #ffffff;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-size: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
+            z-index: 999;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        #toast.active {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @media (max-width: 480px) {
+            .card {
+                padding: 20px;
+            }
+            #card-number {
+                font-size: 1.4rem;
+                letter-spacing: 1.5px;
+            }
+            #iban {
+                font-size: 0.95rem; /* در موبایل شماره شبا باز هم کوچک‌تر */
+                letter-spacing: 1px;
+            }
+            .bg-shape {
+                width: 200px;
+                height: 350px;
+                filter: blur(50px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="bg-shape"></div>
+
+        <div class="card">
+            <!-- بالای کارت -->
+            <div class="card-top">
+                <div class="chip"></div>
+                <span class="bank-name">بانک ملی ایران</span>
+            </div>
+
+            <!-- وسط کارت -->
+            <div class="card-body">
+                <div class="info-group">
+                    <span class="label">شماره کارت</span>
+                    <span id="card-number" class="value clickable" role="button" aria-label="کپی شماره کارت">6037 9975 4224 8878</span>
+                </div>
+                <div class="info-group">
+                    <span class="label">شماره شبا</span>
+                    <span id="iban" class="value clickable" role="button" aria-label="کپی شماره شبا">IR03 0170 0000 0034 3968 7530 00</span>
+                </div>
+            </div>
+
+            <!-- پایین کارت -->
+            <div class="card-bottom">
+                <span id="holder-name">سیدکیارش داراپور</span>
+                <span id="expiry">1407/06</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- پیام اعلان -->
+    <div id="toast">کپی شد!</div>
+
+    <script>
+        const cardNumberElement = document.getElementById('card-number');
+        const ibanElement = document.getElementById('iban');
+        const toastElement = document.getElementById('toast');
+        let toastTimeout;
+
+        async function copyToClipboard(text, element) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast('✅ کپی شد!');
+            } catch (err) {
+                console.error('خطا در کپی کردن: ', err);
+                showToast('❌ خطا در کپی');
+            }
+        }
+
+        function showToast(message) {
+            if (toastTimeout) {
+                clearTimeout(toastTimeout);
+                toastElement.classList.remove('active');
+            }
+
+            toastElement.textContent = message;
+            requestAnimationFrame(() => {
+                toastElement.classList.add('active');
+            });
+
+            toastTimeout = setTimeout(() => {
+                toastElement.classList.remove('active');
+                toastTimeout = null;
+            }, 2000);
+        }
+
+        cardNumberElement.addEventListener('click', function() {
+            const text = this.textContent.trim();
+            copyToClipboard(text, this);
+        });
+
+        ibanElement.addEventListener('click', function() {
+            const text = this.textContent.trim();
+            copyToClipboard(text, this);
+        });
+    </script>
+</body>
+</html>
